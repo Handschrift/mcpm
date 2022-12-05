@@ -14,7 +14,7 @@ fn main() {
         }
         Action::Install { mod_name } => {}
         Action::Init { minecraft_path } => {
-            init(minecraft_path);
+            init(appdata_path.as_path(), minecraft_path).expect("Failed to initialize the minecraft instance");
         }
         _ => ()
     }
