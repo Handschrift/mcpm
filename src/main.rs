@@ -5,8 +5,7 @@ use mcpm::minecraft::init;
 use mcpm::modrinth_wrapper::search;
 
 fn main() {
-    //https://github.com/yashs662/rust_kanban/tree/main/src
-    generate_application_files().expect("Couldn't create the data directory or the datafiles");
+    let appdata_path = generate_application_files().expect("Couldn't create the data directory or the datafiles");
     let args: Arguments = Arguments::parse();
 
     match args.action {

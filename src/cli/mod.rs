@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use clap::Parser;
 use clap::Subcommand;
@@ -35,7 +35,7 @@ pub enum Action {
 }
 
 
-pub fn generate_application_files() -> Result<(), Box<dyn Error>> {
+pub fn generate_application_files() -> Result<PathBuf, Box<dyn Error>> {
     let base_dir = BaseDirs::new();
 
     let dir = match &base_dir {
@@ -60,5 +60,5 @@ pub fn generate_application_files() -> Result<(), Box<dyn Error>> {
         println!("Seems like you started mcpm your first time... creating local files");
     }
 
-    Ok(())
+    Ok(dir)
 }
