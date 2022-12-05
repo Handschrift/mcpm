@@ -21,7 +21,7 @@ pub struct SearchResultItem {
     latest_version: String,
 }
 
-pub struct Mod {}
+
 
 pub fn search(name: String, limit: u16) -> Result<(), Box<dyn Error>> {
     let client = reqwest::blocking::Client::new();
