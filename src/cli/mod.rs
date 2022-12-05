@@ -35,7 +35,7 @@ pub enum Action {
 }
 
 
-pub fn check_application_files() -> Result<(), Box<dyn Error>> {
+pub fn generate_application_files() -> Result<(), Box<dyn Error>> {
     let base_dir = BaseDirs::new();
 
     let dir = match &base_dir {

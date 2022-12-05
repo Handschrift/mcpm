@@ -1,11 +1,12 @@
 use clap::Parser;
 
-use mcpm::cli::{Action, Arguments, check_application_files};
+use mcpm::cli::{Action, Arguments, generate_application_files};
+use mcpm::minecraft::init;
 use mcpm::modrinth_wrapper::search;
 
 fn main() {
     //https://github.com/yashs662/rust_kanban/tree/main/src
-    check_application_files().expect("Couldn't create the data directory or the datafiles");
+    generate_application_files().expect("Couldn't create the data directory or the datafiles");
     let args: Arguments = Arguments::parse();
 
     match args.action {
@@ -13,6 +14,9 @@ fn main() {
             search(mod_name, limit).expect("failed to search");
         }
         Action::Install { mod_name } => {}
+        Action::Init { minecraft_path } => {
+            init(minecraft_path);
+        }
         _ => ()
     }
 }
