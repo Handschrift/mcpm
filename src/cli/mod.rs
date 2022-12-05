@@ -46,7 +46,7 @@ pub fn generate_application_files() -> Result<PathBuf, Box<dyn Error>> {
     };
 
     let dir = dir.join(Path::new("mcpcm/data.json"));
-    let data = MinecraftData { path: "test".to_string() };
+    let data = MinecraftData::new();
 
     if !dir.exists() {
         fs::create_dir(dir.as_path().parent().unwrap())?;
