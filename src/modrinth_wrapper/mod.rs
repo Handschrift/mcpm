@@ -4,6 +4,8 @@ use std::io::Read;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::common::{Mod, ModVersion};
+
 const API_URL: &str = "https://api.modrinth.com/v2/";
 const USER_AGENT: &str = "User-Agent: Handschrift/mcpm/1.0.0";
 
@@ -20,7 +22,6 @@ pub struct SearchResultItem {
     description: String,
     latest_version: String,
 }
-
 
 
 pub fn search(name: String, limit: u16) -> Result<(), Box<dyn Error>> {
@@ -44,4 +45,43 @@ pub fn search(name: String, limit: u16) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn download() {}
+pub fn download(mod_slug: String) {
+    let minecraft_mod = get_mod(mod_slug).expect("Couldn't get mod to download");
+
+    let versions = get_mod_versions(minecraft_mod.versions);
+
+    for v in versions {
+        println!("{}", v.id)
+    }
+}
+
+pub fn get_mod_versions(version_ids: Vec<String>) -> Vec<ModVersion> {
+    let client = reqwest::blocking::Client::new();
+
+    let request_url = String::from(API_URL)
+        + "versions?ids=" + "[\"" + &version_ids.join("\",\"") + "\"]";
+
+    let mut res = client.get(request_url).header(reqwest::header::USER_AGENT, USER_AGENT).send().unwrap();
+    let mut body = String::new();
+    res.read_to_string(&mut body).unwrap();
+
+    let versions: Vec<ModVersion> = serde_json::from_str(&body).unwrap();
+    return versions;
+}
+
+pub fn get_mod(mod_slug: String) -> Result<Mod, Box<dyn Error>> {
+    let client = reqwest::blocking::Client::new();
+
+    let request_url = String::from(API_URL)
+        + "project/" + &mod_slug;
+
+    let mut res = client.get(request_url).header(reqwest::header::USER_AGENT, USER_AGENT).send()?;
+    let mut body = String::new();
+    res.read_to_string(&mut body)?;
+    println!("{}", body);
+
+    let minecraft_mod: Mod = serde_json::from_str(&body).expect("liegt es daran?");
+
+
+    Ok(minecraft_mod)
+}
