@@ -10,14 +10,24 @@ fn main() {
 
     match args.action {
         Action::Search { mod_name, limit } => {
-            search(mod_name, limit).expect("failed to search");
+            match search(mod_name, limit) {
+                JsonError => {}
+            };
         }
         Action::Install { mod_name } => {
-            download(mod_name);
+            match download(mod_name) {
+                JsonError => {}
+                NetworkError => {}
+                FileSystemError => {}
+            };
         }
         Action::Init { minecraft_path } => {
-            init(appdata_path.as_path(), minecraft_path).expect("Failed to initialize the minecraft instance");
+            match init(appdata_path.as_path(), minecraft_path) {
+                JsonError => {}
+                NetworkError => {}
+                FileSystemError => {}
+            }
         }
-        _ => ()
+        Action::Update {} => {}
     }
 }

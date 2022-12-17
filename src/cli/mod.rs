@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 use clap::Subcommand;
 use directories::BaseDirs;
+use crate::common::McpmDataError;
 
 use crate::minecraft::MinecraftData;
 
@@ -35,7 +36,7 @@ pub enum Action {
 }
 
 
-pub fn generate_application_files() -> Result<PathBuf, Box<dyn Error>> {
+pub fn generate_application_files() -> Result<PathBuf, McpmDataError> {
     let base_dir = BaseDirs::new();
 
     let dir = match &base_dir {

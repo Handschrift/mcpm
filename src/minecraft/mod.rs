@@ -38,7 +38,7 @@ impl MinecraftInstance {
             path: "".to_string(),
         }
     }
-    pub fn create_mcpm_json(&self) -> Result<(), Box<dyn Error>> {
+    pub fn create_mcpm_json(&self) -> Result<(), McpmDataError> {
         let json = serde_json::to_string(&MinecraftModList::new())?;
         let path = Path::new(&self.path).join("mcpm.json");
         fs::write(path.as_path(), json)?;
@@ -53,14 +53,14 @@ impl MinecraftData {
         }
     }
 
-    pub fn parse_existing(path: &Path) -> Result<MinecraftData, Box<dyn Error>> {
+    pub fn parse_existing(path: &Path) -> Result<MinecraftData, McpmDataError> {
         let json = fs::read_to_string(path)?;
         let data: MinecraftData = serde_json::from_str::<MinecraftData>(&json)?;
 
         Ok(data)
     }
 
-    fn save(&self, data_path: &Path) -> Result<(), Box<dyn Error>> {
+    fn save(&self, data_path: &Path) -> Result<(), McpmDataError> {
         let json = serde_json::to_string(&self)?;
         fs::write(data_path, json)?;
         Ok(())
@@ -72,8 +72,8 @@ impl MinecraftData {
 }
 
 
-pub fn init(data_path: &Path, minecraft_path: String) -> Result<(), Box<dyn Error>> {
-    let mut data = MinecraftData::parse_existing(data_path).expect("Couldn't find minecraft instance");
+pub fn init(data_path: &Path, minecraft_path: String) -> Result<(), McpmDataError> {
+    let mut data = MinecraftData::parse_existing(data_path)?;
 
     if data.instances.iter().any(|x| {
         x.path == minecraft_path
