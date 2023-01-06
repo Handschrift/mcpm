@@ -25,7 +25,7 @@ fn main() {
             };
         }
         Action::Install { mod_name } => {
-            match download(mod_name) {
+            match download(mod_name, current_minecraft_instance) {
                 JsonError => {}
                 NetworkError => {}
                 FileSystemError => {}
