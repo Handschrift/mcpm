@@ -40,7 +40,7 @@ pub fn search(name: String, limit: u16) -> Result<(), McpmDataError> {
     let search_result: SearchResult = serde_json::from_str(&body)?;
 
     for hit in search_result.hits {
-        println!("{}\t{}\tVersion: {}", hit.title, hit.description, hit.latest_version);
+        println!("{}\t{}\tVersion: {} (slug: {})", hit.title, hit.description, hit.latest_version, hit.slug);
     }
 
     Ok(())
