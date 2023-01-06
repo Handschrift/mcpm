@@ -12,10 +12,12 @@ pub struct MinecraftData {
     pub instances: Vec<MinecraftInstance>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct MinecraftInstance {
     pub default: bool,
     pub path: String,
+    pub loader: String,
+    pub minecraft_version: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -32,10 +34,12 @@ impl MinecraftModList {
 }
 
 impl MinecraftInstance {
-    fn new() -> MinecraftInstance {
+    pub fn new() -> MinecraftInstance {
         MinecraftInstance {
             default: false,
             path: "".to_string(),
+            loader: "".to_string(),
+            minecraft_version: "".to_string(),
         }
     }
     pub fn create_mcpm_json(&self) -> Result<(), McpmDataError> {
