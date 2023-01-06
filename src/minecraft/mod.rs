@@ -74,21 +74,45 @@ impl MinecraftData {
 
 pub fn init(data_path: &Path, minecraft_path: String) -> Result<(), McpmDataError> {
     let mut data = MinecraftData::parse_existing(data_path)?;
+    let minecraft_version_regex = Regex::new(r"^1\.([0-9]{2}|[0-9])(?:\.([0-9]{2}|[0-9]))?$").unwrap();
 
     if data.instances.iter().any(|x| {
         x.path == minecraft_path
     }) {
         println!("This is already an existing instance!");
-        return Ok(())
+        return Ok(());
+    }
+
+    let mut loader = String::new();
+    let mut version = String::new();
+    println!("Please enter the modloader you are using (Forge|Fabric|Quilt):");
+    io::stdin().read_line(&mut loader)?;
+    while !loader.to_lowercase().eq("forge") || !loader.to_lowercase().eq("fabric") || !loader.to_lowercase().eq("quilt") {
+        println!("You didn't enter a valid modloader! Please enter Forge, Fabric or Quilt: ");
+        io::stdin().read_line(&mut loader)?;
+    }
+
+    println!("Please enter your minecraft version: ");
+    io::stdin().read_line(&mut version)?;
+    while minecraft_version_regex.is_match(version.as_str()) {
+        println!("This is not a valid minecraft version, please type a valid one: ");
+        io::stdin().read_line(&mut version)?;
+
     }
 
     let mut new_minecraft_instance = MinecraftInstance::new();
     new_minecraft_instance.path = minecraft_path;
-    new_minecraft_instance.default = true;
+
+    if data.instances.is_empty() {
+        new_minecraft_instance.default = true;
+    }
+
+    new_minecraft_instance.loader = loader.trim().to_string();
+    new_minecraft_instance.minecraft_version = version.trim().to_string();
     new_minecraft_instance.create_mcpm_json()?;
     data.add_minecraft_instance(new_minecraft_instance);
     data.save(data_path)?;
-    
+
     Ok(())
 }
 
