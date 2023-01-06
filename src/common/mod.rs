@@ -26,6 +26,7 @@ pub struct ModFile {
     pub url: String,
     pub filename: String,
     pub size: u32,
+    pub primary: bool
 }
 #[derive(Debug)]
 pub enum McpmDataError {
