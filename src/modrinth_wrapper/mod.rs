@@ -29,7 +29,8 @@ pub fn search(name: String, limit: u16) -> Result<(), McpmDataError> {
 
     let request_url = String::from(API_URL)
         + "search?query=" + &name
-        + "&limit=" + &limit.to_string();
+        + "&limit=" + &limit.to_string()
+        + "&facets=[[\"project_type:mod\"]]";
 
     let mut res = client.get(request_url).header(reqwest::header::USER_AGENT, USER_AGENT).send()?;
 
