@@ -1,10 +1,15 @@
+use std::cmp::min;
 use std::error::Error;
+use std::fs::File;
+use std::io;
 use std::io::Read;
+use std::path::Path;
 
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::common::{McpmDataError, Mod, ModVersion};
+use crate::minecraft::MinecraftInstance;
 
 const API_URL: &str = "https://api.modrinth.com/v2/";
 const USER_AGENT: &str = "User-Agent: Handschrift/mcpm/1.0.0";
@@ -81,9 +86,9 @@ pub fn get_mod_versions(version_ids: Vec<String>) -> Result<Vec<ModVersion>, Mcp
     let request_url = String::from(API_URL)
         + "versions?ids=" + "[\"" + &version_ids.join("\",\"") + "\"]";
 
-    let mut res = client.get(request_url).header(reqwest::header::USER_AGENT, USER_AGENT).send().unwrap();
+    let mut res = client.get(request_url).header(reqwest::header::USER_AGENT, USER_AGENT).send()?;
     let mut body = String::new();
-    res.read_to_string(&mut body).unwrap();
+    res.read_to_string(&mut body)?;
 
     let versions: Vec<ModVersion> = serde_json::from_str(&body)?;
     return Ok(versions);
