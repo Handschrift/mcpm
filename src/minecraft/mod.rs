@@ -62,6 +62,15 @@ impl MinecraftData {
         }
     }
 
+    pub fn get_default_instance(&self) -> Option<MinecraftInstance> {
+        let instances = self.instances.clone();
+        let current_instance: Vec<MinecraftInstance> = instances.into_iter().filter(|x| { x.default == true }).collect();
+        match current_instance.first() {
+            None => None,
+            Some(t) => Some(t.clone()),
+        }
+    }
+
     pub fn parse_existing(path: &Path) -> Result<MinecraftData, McpmDataError> {
         let json = fs::read_to_string(path)?;
         let data: MinecraftData = serde_json::from_str::<MinecraftData>(&json)?;
