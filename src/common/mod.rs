@@ -21,13 +21,13 @@ pub struct ModVersion {
     pub date_published: String,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct ModFile {
     pub url: String,
     pub filename: String,
     pub size: u32,
 }
-
+#[derive(Debug)]
 pub enum McpmDataError {
     JsonError(serde_json::Error),
     FileSystemError(io::Error),
