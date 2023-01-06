@@ -46,16 +46,32 @@ pub fn search(name: String, limit: u16) -> Result<(), McpmDataError> {
     Ok(())
 }
 
-pub fn download(mod_slug: String) ->  Result<(), McpmDataError>{
+pub fn download(mod_slug: String, minecraft_instance: MinecraftInstance) -> Result<(), McpmDataError> {
     let minecraft_mod = get_mod(mod_slug)?;
 
     let versions = get_mod_versions(minecraft_mod.versions)?;
 
-    let versions = get_mod_versions(minecraft_mod.versions);
+    let mut potential_versions: Vec<ModVersion> = versions.into_iter().filter(|version| {
+        version.loaders.contains(&minecraft_instance.loader) && version.game_versions.contains(&minecraft_instance.minecraft_version)
+    }).collect();
 
-    for v in versions {
-        println!("{}", v.id)
-    }
+    potential_versions.reverse();
+
+    match potential_versions.get(0) {
+        Some(version) => {
+            for v in &version.files {
+                if v.primary {
+                    let client = reqwest::blocking::Client::new();
+                    let mut res = client.get(&v.url).send()?;
+                    let mut file = File::create(String::from(&minecraft_instance.path) + "/mods/" + &v.filename)?;
+                    io::copy(&mut res, &mut file)?;
+                    println!("Installed: {}", v.filename);
+                }
+            }
+        }
+        None => println!("No versions matched the specified constraints")
+    };
+
     Ok(())
 }
 
