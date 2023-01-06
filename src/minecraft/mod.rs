@@ -1,11 +1,13 @@
+use std::{fs, io};
 use std::error::Error;
-use std::fs;
 use std::path::Path;
+use regex::Regex;
 
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::common::Mod;
+use crate::common::{McpmDataError, Mod};
+use crate::common::McpmDataError::{FileSystemError, JsonError};
 
 #[derive(Deserialize, Serialize)]
 pub struct MinecraftData {
@@ -47,6 +49,9 @@ impl MinecraftInstance {
         let path = Path::new(&self.path).join("mcpm.json");
         fs::write(path.as_path(), json)?;
         Ok(())
+    }
+    pub fn get_modlist(&self) -> Result<MinecraftModList, McpmDataError> {
+        Ok(MinecraftModList::new())
     }
 }
 
