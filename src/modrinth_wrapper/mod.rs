@@ -9,7 +9,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::common::{McpmDataError, Mod, ModVersion};
-use crate::minecraft::MinecraftInstance;
+use crate::minecraft::{InstalledMod, MinecraftInstance};
 
 const API_URL: &str = "https://api.modrinth.com/v2/";
 const USER_AGENT: &str = "User-Agent: Handschrift/mcpm/1.0.0";
@@ -51,7 +51,7 @@ pub fn search(name: String, limit: u16) -> Result<(), McpmDataError> {
     Ok(())
 }
 
-pub fn download(mod_slug: String, minecraft_instance: MinecraftInstance) -> Result<(), McpmDataError> {
+pub fn download(mod_slug: String, mut minecraft_instance: MinecraftInstance) -> Result<(), McpmDataError> {
     let minecraft_mod = get_mod(mod_slug)?;
 
     let versions = get_mod_versions(minecraft_mod.versions)?;
@@ -69,7 +69,14 @@ pub fn download(mod_slug: String, minecraft_instance: MinecraftInstance) -> Resu
                     let client = reqwest::blocking::Client::new();
                     let mut res = client.get(&v.url).send()?;
                     let mut file = File::create(String::from(&minecraft_instance.path) + "/mods/" + &v.filename)?;
+                    let installed_minecraft_mod = InstalledMod {
+                        version: v.filename.clone(),
+                        slug: minecraft_mod.slug.clone(),
+                        name: minecraft_mod.title.clone(),
+                    };
                     io::copy(&mut res, &mut file)?;
+                    minecraft_instance.add_mod(installed_minecraft_mod);
+                    minecraft_instance.save().expect("Couldn't save!");
                     println!("Installed: {}", v.filename);
                 }
             }
