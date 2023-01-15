@@ -1,7 +1,7 @@
 use clap::Parser;
 
 use mcpm::cli::{Action, Arguments, generate_application_files};
-use mcpm::minecraft::{init, MinecraftData, MinecraftInstance};
+use mcpm::minecraft::{init, MinecraftData, MinecraftDataEntry, MinecraftInstance};
 use mcpm::modrinth_wrapper::{download, search};
 
 fn main() {
@@ -10,11 +10,11 @@ fn main() {
     let args: Arguments = Arguments::parse();
     let minecraft_data = MinecraftData::parse_existing(appdata_path.as_path())
         .expect("Couldn't parse the current data");
-    let current_minecraft_instance = match minecraft_data.get_default_instance() {
+    let current_minecraft_instance = match minecraft_data.get_default_entry() {
         Some(t) => t,
         None => {
             println!("No default minecraft instance found... please do a mcpm init");
-            MinecraftInstance::new()
+            MinecraftDataEntry::new()
         }
     };
 
@@ -25,7 +25,7 @@ fn main() {
             };
         }
         Action::Install { mod_name } => {
-            match download(mod_name, current_minecraft_instance) {
+            match download(mod_name, current_minecraft_instance.get_minecraft_instance(&appdata_path).unwrap()) {
                 JsonError => {}
                 NetworkError => {}
                 FileSystemError => {}
