@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Error;
 use crate::common::McpmDataError::{FileSystemError, JsonError, NetworkError};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Mod {
     pub slug: String,
     pub title: String,
