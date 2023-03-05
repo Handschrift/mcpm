@@ -21,8 +21,6 @@ pub enum Action {
     Install {
         mod_name: String,
     },
-    Init {
-        minecraft_path: String,
-    },
+    Init {},
     Update {},
 }
