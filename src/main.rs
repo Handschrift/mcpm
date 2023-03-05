@@ -30,3 +30,11 @@ fn main() {
         Action::Update {} => {}
     }
 }
+
+fn handle_missing_lock_file() {
+    if !PathBuf::from(LOCK_FILE_NAME).exists() {
+        eprintln!("No lock file found in the current directory... closing application");
+        eprintln!("Please enter your minecraft folder and run mcpm init!");
+        exit(1);
+    }
+}
