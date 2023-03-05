@@ -1,12 +1,10 @@
 use std::{fs, io};
 
-use std::path::{Path, PathBuf};
-
 use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::common::{McpmDataError, Mod};
+use crate::common::{McpmDataError};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct MinecraftInstance {
