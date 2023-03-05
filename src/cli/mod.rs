@@ -34,32 +34,3 @@ pub enum Action {
     },
     Update {},
 }
-
-
-pub fn generate_application_files() -> Result<PathBuf, McpmDataError> {
-    let base_dir = BaseDirs::new();
-
-    let dir = match &base_dir {
-        None => Path::new("."),
-        Some(dir) => {
-            dir.data_local_dir()
-        }
-    };
-
-    let dir = dir.join(Path::new("mcpcm/data.json"));
-    let data = MinecraftData::new();
-
-    if !dir.exists() {
-        fs::create_dir(dir.as_path().parent().unwrap())?;
-
-        let mut file = File::create(dir.as_path())?;
-
-        let json = serde_json::to_string(&data)?;
-
-        file.write(json.as_bytes())?;
-
-        println!("Seems like you started mcpm your first time... creating local files");
-    }
-
-    Ok(dir)
-}
