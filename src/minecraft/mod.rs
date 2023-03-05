@@ -30,7 +30,7 @@ impl MinecraftInstance {
         Ok(())
     }
 
-    pub fn parse_existing() -> Result<MinecraftInstance, McpmDataError> {
+    pub fn current() -> Result<MinecraftInstance, McpmDataError> {
         let json = fs::read_to_string("mcpm.lock")?;
         let data: MinecraftInstance = serde_json::from_str(&json)?;
 
