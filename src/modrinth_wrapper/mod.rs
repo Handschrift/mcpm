@@ -68,7 +68,7 @@ pub fn download(mod_slug: String, mut minecraft_instance: MinecraftInstance) -> 
                 if v.primary {
                     let client = reqwest::blocking::Client::new();
                     let mut res = client.get(&v.url).send()?;
-                    let mut file = File::create(String::from(&minecraft_instance.path) + "/mods/" + &v.filename)?;
+                    let mut file = File::create(String::from("mods/") + &v.filename)?;
                     let installed_minecraft_mod = InstalledMod {
                         version: v.filename.clone(),
                         slug: minecraft_mod.slug.clone(),
