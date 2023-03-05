@@ -4,7 +4,6 @@ use std::process::exit;
 use clap::Parser;
 
 use mcpm::cli::{Action, Arguments};
-use mcpm::common::McpmDataError;
 use mcpm::minecraft::{init, MinecraftInstance};
 use mcpm::modrinth_wrapper::{download, search};
 
