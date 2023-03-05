@@ -1,9 +1,6 @@
-use std::cmp::min;
-use std::error::Error;
 use std::fs::File;
 use std::io;
 use std::io::Read;
-use std::path::Path;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -27,7 +24,6 @@ pub struct SearchResultItem {
     description: String,
     latest_version: String,
 }
-
 
 pub fn search(name: String, limit: u16) -> Result<(), McpmDataError> {
     let client = reqwest::blocking::Client::new();
