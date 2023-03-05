@@ -60,9 +60,8 @@ pub fn download(mod_slug: String, mut minecraft_instance: MinecraftInstance) -> 
         version.loaders.contains(&minecraft_instance.loader) && version.game_versions.contains(&minecraft_instance.minecraft_version)
     }).collect();
 
-    potential_versions.reverse();
-
-    match potential_versions.get(0) {
+    //get the last element to get the newest version of the mod
+    match potential_versions.last() {
         Some(version) => {
             for v in &version.files {
                 if v.primary {
