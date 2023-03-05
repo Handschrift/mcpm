@@ -56,7 +56,7 @@ pub fn download(mod_slug: String, mut minecraft_instance: MinecraftInstance) -> 
 
     let versions = get_mod_versions(minecraft_mod.versions)?;
 
-    let mut potential_versions: Vec<ModVersion> = versions.into_iter().filter(|version| {
+    let potential_versions: Vec<ModVersion> = versions.into_iter().filter(|version| {
         version.loaders.contains(&minecraft_instance.loader) && version.game_versions.contains(&minecraft_instance.minecraft_version)
     }).collect();
 
