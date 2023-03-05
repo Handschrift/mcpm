@@ -1,33 +1,30 @@
+use std::path::PathBuf;
+use std::process::exit;
+
 use clap::Parser;
 
-use mcpm::cli::{Action, Arguments, generate_application_files};
-use mcpm::minecraft::{init, MinecraftData, MinecraftDataEntry, MinecraftInstance};
+use mcpm::cli::{Action, Arguments};
+use mcpm::common::McpmDataError;
+use mcpm::minecraft::{init, MinecraftInstance};
 use mcpm::modrinth_wrapper::{download, search};
+
+pub const LOCK_FILE_NAME: &str = "mcpm.lock";
 
 fn main() {
     let args: Arguments = Arguments::parse();
 
     match args.action {
         Action::Search { mod_name, limit } => {
-            match search(mod_name, limit) {
-                JsonError => {}
-            };
+            search(mod_name, limit).expect("Searching a mod failed. Please try again later or check your internet connection");
+        }
+        Action::Init {} => {
+            init().expect("There was an error initialising and creating the mcpm.lock");
         }
         Action::Install { mod_name } => {
-            match download(mod_name, current_minecraft_instance.get_minecraft_instance(&appdata_path).unwrap()) {
-                JsonError => {}
-                NetworkError => {}
-                FileSystemError => {}
-            };
+            handle_missing_lock_file();
+            download(mod_name, MinecraftInstance::current().unwrap()).expect("There was an error downloading the file");
         }
-        Action::Init { minecraft_path } => {
-            match init(appdata_path.as_path(), minecraft_path) {
-                JsonError => {}
-                NetworkError => {}
-                FileSystemError => {}
-            }
-        }
-        Action::Update {} => {}
+        _ => {}
     }
 }
 
