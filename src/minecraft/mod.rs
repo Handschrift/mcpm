@@ -1,5 +1,5 @@
 use std::{fs, io};
-use std::fmt::format;
+
 use std::path::{Path, PathBuf};
 
 use regex::Regex;
@@ -8,48 +8,8 @@ use serde::Serialize;
 
 use crate::common::{McpmDataError, Mod};
 
-#[derive(Deserialize, Serialize)]
-pub struct MinecraftData {
-    pub instances: Vec<MinecraftDataEntry>,
-}
-
-impl MinecraftData {
-    pub fn new() -> MinecraftData {
-        MinecraftData {
-            instances: Vec::new()
-        }
-    }
-
-    pub fn get_default_entry(&self) -> Option<MinecraftDataEntry> {
-        let instances = self.instances.clone();
-        let current_instance: Vec<MinecraftDataEntry> = instances.into_iter().filter(|x| { x.default == true }).collect();
-        match current_instance.first() {
-            None => None,
-            Some(t) => Some(t.clone()),
-        }
-    }
-
-    pub fn parse_existing(path: &Path) -> Result<MinecraftData, McpmDataError> {
-        let json = fs::read_to_string(path)?;
-        let data: MinecraftData = serde_json::from_str::<MinecraftData>(&json)?;
-
-        Ok(data)
-    }
-
-    fn save(&self, data_path: &Path) -> Result<(), McpmDataError> {
-        let json = serde_json::to_string(&self)?;
-        fs::write(data_path, json)?;
-        Ok(())
-    }
-
-    fn add_entry(&mut self, entry: MinecraftDataEntry) {
-        self.instances.push(entry)
-    }
-}
-
 #[derive(Deserialize, Serialize, Clone)]
 pub struct MinecraftInstance {
-    pub path: String,
     pub loader: String,
     pub minecraft_version: String,
     pub mods: Vec<InstalledMod>,
@@ -58,7 +18,6 @@ pub struct MinecraftInstance {
 impl MinecraftInstance {
     pub fn new() -> MinecraftInstance {
         MinecraftInstance {
-            path: "".to_string(),
             loader: "".to_string(),
             minecraft_version: "".to_string(),
             mods: Vec::new(),
@@ -67,13 +26,12 @@ impl MinecraftInstance {
 
     pub fn create_mcpm_json(&self) -> Result<(), McpmDataError> {
         let json = serde_json::to_string(&self)?;
-        let path = Path::new(&self.path).join("mcpm.json");
-        fs::write(path.as_path(), json)?;
+        fs::write("mcpm.lock", json)?;
         Ok(())
     }
 
-    pub fn parse_existing(path: String) -> Result<MinecraftInstance, McpmDataError> {
-        let json = fs::read_to_string(path + "/mcpm.json")?;
+    pub fn parse_existing() -> Result<MinecraftInstance, McpmDataError> {
+        let json = fs::read_to_string("mcpm.lock")?;
         let data: MinecraftInstance = serde_json::from_str(&json)?;
 
         Ok(data)
@@ -85,34 +43,8 @@ impl MinecraftInstance {
 
     pub fn save(&self) -> Result<(), McpmDataError> {
         let json = serde_json::to_string(&self)?;
-        fs::write(format!("{}{}", &self.path, "/mcpm.json"), json)?;
+        fs::write("mcpm.lock", json)?;
         Ok(())
-    }
-}
-
-#[derive(Deserialize, Serialize, Clone)]
-pub struct MinecraftDataEntry {
-    pub path: String,
-    pub default: bool,
-}
-
-impl MinecraftDataEntry {
-    pub fn new() -> MinecraftDataEntry {
-        MinecraftDataEntry {
-            default: false,
-            path: String::from("."),
-        }
-    }
-    pub fn get_minecraft_instance(&self, path: &Path) -> Option<MinecraftInstance> {
-
-        for i in MinecraftData::parse_existing(path).unwrap().instances {
-            println!("{}", i.path);
-            println!("{}", path.to_str().unwrap());
-            if i.path == self.path {
-                return Some(MinecraftInstance::parse_existing(i.path).unwrap());
-            }
-        }
-        return None;
     }
 }
 
@@ -124,16 +56,9 @@ pub struct InstalledMod {
 }
 
 
-pub fn init(data_path: &Path, minecraft_path: String) -> Result<(), McpmDataError> {
-    let mut data = MinecraftData::parse_existing(data_path)?;
+pub fn init() -> Result<(), McpmDataError> {
     let minecraft_version_regex = Regex::new(r"^1\.([0-9]{2}|[0-9])(?:\.([0-9]{2}|[0-9]))?$").unwrap();
 
-    if data.instances.iter().any(|x| {
-        x.path == minecraft_path
-    }) {
-        println!("This is already an existing instance!");
-        return Ok(());
-    }
 
     let mut loader = String::new();
     let mut version = String::new();
@@ -152,24 +77,10 @@ pub fn init(data_path: &Path, minecraft_path: String) -> Result<(), McpmDataErro
     }
 
     let mut new_minecraft_instance = MinecraftInstance::new();
-    new_minecraft_instance.path = minecraft_path;
-
-    let mut entry = MinecraftDataEntry {
-        default: false,
-        path: new_minecraft_instance.path.clone(),
-    };
-
-    if data.instances.is_empty() {
-        entry.default = true;
-    }
 
     new_minecraft_instance.loader = loader.trim().to_string();
     new_minecraft_instance.minecraft_version = version.trim().to_string();
     new_minecraft_instance.create_mcpm_json()?;
-
-
-    data.add_entry(entry);
-    data.save(data_path)?;
 
     Ok(())
 }
