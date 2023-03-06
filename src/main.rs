@@ -3,25 +3,27 @@ use std::process::exit;
 
 use clap::Parser;
 
+
 use mcpm::cli::{Action, Arguments};
 use mcpm::minecraft::{init, MinecraftInstance};
 use mcpm::modrinth_wrapper::{download, search};
 
 pub const LOCK_FILE_NAME: &str = "mcpm.lock";
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args: Arguments = Arguments::parse();
 
     match args.action {
         Action::Search { mod_name, limit } => {
-            search(mod_name, limit).expect("Searching a mod failed. Please try again later or check your internet connection");
+            search(mod_name, limit).await.expect("Searching a mod failed. Please try again later or check your internet connection");
         }
         Action::Init {} => {
             init().expect("There was an error initialising and creating the mcpm.lock");
         }
         Action::Install { mod_name } => {
             handle_missing_lock_file();
-            download(mod_name, MinecraftInstance::current().unwrap()).expect("There was an error downloading the file");
+            download(mod_name, MinecraftInstance::current().unwrap()).await.expect("Error downloading the file");
         }
         _ => {}
     }
