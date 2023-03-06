@@ -6,9 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-std = "1.12.0"
 clap = { version = "4.0.29", features = ["derive"] }
+futures-util = "0.3.26"
 indicatif = "0.17.3"
 regex = "1.7.0"
 reqwest = {version = "0.11.13", features = ["blocking", "stream"]}
 serde = {version = "1.0.148", features = ["derive"]}
 serde_json = "1.0.89"
+tokio = { version = "1.26.0", features = ["full"] }
