@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io;
 use std::io::Read;
+use std::process::exit;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -76,7 +77,10 @@ pub fn download(mod_slug: String, mut minecraft_instance: MinecraftInstance) -> 
                 }
             }
         }
-        None => println!("No versions matched the specified constraints")
+        None => {
+            println!("No versions matched the specified constraints");
+            exit(0);
+        }
     };
 
     Ok(())
