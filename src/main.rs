@@ -5,7 +5,7 @@ use clap::Parser;
 
 
 use mcpm::cli::{Action, Arguments};
-use mcpm::minecraft::{init, MinecraftInstance};
+use mcpm::minecraft::{init, MinecraftInstance, uninstall};
 use mcpm::modrinth_wrapper::{download, search};
 
 pub const LOCK_FILE_NAME: &str = "mcpm.lock";
@@ -24,6 +24,9 @@ async fn main() {
         Action::Install { mod_name } => {
             handle_missing_lock_file();
             download(mod_name, MinecraftInstance::current().unwrap()).await.expect("Error downloading the file");
+        }
+        Action::Remove {mod_name} => {
+            uninstall(mod_name).expect("There was an error uninstalling the mod.");
         }
         _ => {}
     }
