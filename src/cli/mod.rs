@@ -20,4 +20,7 @@ pub enum Action {
     },
     Init {},
     Update {},
+    Remove{
+        mod_name: String
+    }
 }
