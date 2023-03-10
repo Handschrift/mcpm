@@ -1,4 +1,6 @@
 use std::{fs, io};
+use std::io::ErrorKind;
+use std::process::exit;
 
 use regex::Regex;
 use serde::Deserialize;
@@ -87,3 +89,32 @@ pub fn init() -> Result<(), McpmDataError> {
     Ok(())
 }
 
+pub fn uninstall(mod_name: String) -> Result<(), McpmDataError>{
+    let mut current_instance = MinecraftInstance::current()?;
+    if current_instance.mods.into_iter().any(|x| {x.slug == mod_name}) {
+        let current_mod = current_instance.mods.into_iter().find(|x1| {x1.slug == mod_name}).unwrap();
+        println!("Removing file...");
+        match fs::remove_file(format!("mods/{}",current_mod.version )){
+            Err(error) => {
+                match error.kind() {
+                    ErrorKind::NotFound => {
+                        println!("File not found... removing entry from lockfile.")
+                    },
+                    ErrorKind::PermissionDenied => {
+                        println!("Couldn't delete file permission denied... exiting.");
+                        exit(1);
+                    },
+                    _ => Err(error)
+                }
+            },
+            _Ok => {}
+        };
+        println!("Updating lockfile...");
+        current_instance.remove_mod(current_mod);
+        current_instance.save()?;
+        println!("The mod {} has been successfully removed.", current_mod.name);
+    } else {
+        println!("This mod isn't installed.")
+    }
+    Ok(())
+}
