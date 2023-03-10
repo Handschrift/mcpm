@@ -39,6 +39,10 @@ impl MinecraftInstance {
         self.mods.push(minecraft_mod)
     }
 
+    pub fn remove_mod(&mut self, minecraft_mod: InstalledMod){
+        self.mods.retain(|x| {x.slug == minecraft_mod.slug});
+    }
+
     pub fn save(&self) -> Result<(), McpmDataError> {
         let json = serde_json::to_string(&self)?;
         fs::write("mcpm.lock", json)?;
