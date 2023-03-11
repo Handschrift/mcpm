@@ -26,6 +26,7 @@ async fn main() {
             download(mod_name, MinecraftInstance::current().unwrap()).await.expect("Error downloading the file");
         }
         Action::Remove {mod_name} => {
+            handle_missing_lock_file();
             uninstall(mod_name).expect("There was an error uninstalling the mod.");
         }
         _ => {}
