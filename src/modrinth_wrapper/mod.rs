@@ -131,7 +131,6 @@ pub async fn download(mod_slug: String, mut minecraft_instance: MinecraftInstanc
         }
         None => {
             println!("No versions matched the specified constraints");
-            exit(0);
         }
     };
 
