@@ -15,7 +15,7 @@ use crate::common::{McpmDataError, Mod, ModVersion};
 use crate::minecraft::{InstalledMod, MinecraftInstance};
 
 const API_URL: &str = "https://api.modrinth.com/v2/";
-const USER_AGENT: &str = "User-Agent: Handschrift/mcpm/1.0.0";
+const USER_AGENT: &str = "User-Agent: Handschrift/mcpm/0.2.0";
 
 #[derive(Deserialize, Serialize)]
 pub struct SearchResult {
