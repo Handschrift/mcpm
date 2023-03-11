@@ -41,8 +41,8 @@ impl MinecraftInstance {
         self.mods.push(minecraft_mod)
     }
 
-    pub fn remove_mod(&mut self, minecraft_mod: InstalledMod){
-        self.mods.retain(|x| {x.slug == minecraft_mod.slug});
+    pub fn remove_mod(&mut self, minecraft_mod: &InstalledMod){
+        self.mods.retain(|x| {x.slug != minecraft_mod.slug});
     }
 
     pub fn save(&self) -> Result<(), McpmDataError> {
@@ -91,10 +91,11 @@ pub fn init() -> Result<(), McpmDataError> {
 
 pub fn uninstall(mod_name: String) -> Result<(), McpmDataError>{
     let mut current_instance = MinecraftInstance::current()?;
-    if current_instance.mods.into_iter().any(|x| {x.slug == mod_name}) {
-        let current_mod = current_instance.mods.into_iter().find(|x1| {x1.slug == mod_name}).unwrap();
+    let current_mod = current_instance.mods.iter().find(|minecraft_mod| {minecraft_mod.slug == mod_name}).cloned();
+    if current_mod.is_some() {
+        let current_mod = current_mod.unwrap();
         println!("Removing file...");
-        match fs::remove_file(format!("mods/{}",current_mod.version )){
+        match fs::remove_file(format!("mods/{}",&current_mod.version )){
             Err(error) => {
                 match error.kind() {
                     ErrorKind::NotFound => {
@@ -104,13 +105,13 @@ pub fn uninstall(mod_name: String) -> Result<(), McpmDataError>{
                         println!("Couldn't delete file permission denied... exiting.");
                         exit(1);
                     },
-                    _ => Err(error)
+                    _ => {}
                 }
             },
-            _Ok => {}
+            _ok => {}
         };
         println!("Updating lockfile...");
-        current_instance.remove_mod(current_mod);
+        current_instance.remove_mod(&current_mod);
         current_instance.save()?;
         println!("The mod {} has been successfully removed.", current_mod.name);
     } else {
