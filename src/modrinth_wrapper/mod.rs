@@ -3,7 +3,6 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Seek;
 use std::io::Write;
-use std::process::exit;
 
 use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -11,7 +10,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::common::{McpmDataError, Mod, ModVersion};
+use crate::common::{Dependency, McpmDataError, Mod, ModVersion};
 use crate::minecraft::{InstalledMod, MinecraftInstance};
 
 const API_URL: &str = "https://api.modrinth.com/v2/";
@@ -113,6 +112,19 @@ pub async fn download(mod_slug: String, mut minecraft_instance: MinecraftInstanc
     //get the last element to get the newest version of the mod
     match potential_versions.last() {
         Some(version) => {
+            for dependency in &version.dependencies {
+                if dependency.dependency_type == "required" {
+                    match &dependency.version_id {
+                        Some(version_id) => {
+                            let dependency_versions = get_mod_versions(&client, vec![version_id.clone()]).await?;
+
+                        },
+                        None => {
+
+                        }
+                    }
+                }
+            }
             for v in &version.files {
                 if v.primary {
                     download_file(&client, &v.url, format!("mods/{}", &v.filename).as_str()).await.unwrap();

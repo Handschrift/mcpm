@@ -6,7 +6,7 @@ use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::common::{McpmDataError};
+use crate::common::McpmDataError;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct MinecraftInstance {
@@ -24,8 +24,8 @@ impl MinecraftInstance {
         }
     }
 
-    pub fn create_mcpm_json(&self) -> Result<(), McpmDataError> {
-        let json = serde_json::to_string(&self)?;
+    pub fn create_mcpm_json(&self) -> io::Result<()> {
+        let json = serde_json::to_string(&self).unwrap();
         fs::write("mcpm.lock", json)?;
         Ok(())
     }
@@ -41,8 +41,8 @@ impl MinecraftInstance {
         self.mods.push(minecraft_mod)
     }
 
-    pub fn remove_mod(&mut self, minecraft_mod: &InstalledMod){
-        self.mods.retain(|x| {x.slug != minecraft_mod.slug});
+    pub fn remove_mod(&mut self, minecraft_mod: &InstalledMod) {
+        self.mods.retain(|x| { x.slug != minecraft_mod.slug });
     }
 
     pub fn save(&self) -> Result<(), McpmDataError> {
@@ -89,25 +89,25 @@ pub fn init() -> Result<(), McpmDataError> {
     Ok(())
 }
 
-pub fn uninstall(mod_name: String) -> Result<(), McpmDataError>{
+pub fn uninstall(mod_name: String) -> Result<(), McpmDataError> {
     let mut current_instance = MinecraftInstance::current()?;
-    let current_mod = current_instance.mods.iter().find(|minecraft_mod| {minecraft_mod.slug == mod_name}).cloned();
+    let current_mod = current_instance.mods.iter().find(|minecraft_mod| { minecraft_mod.slug == mod_name }).cloned();
     if current_mod.is_some() {
         let current_mod = current_mod.unwrap();
         println!("Removing file...");
-        match fs::remove_file(format!("mods/{}",&current_mod.version )){
+        match fs::remove_file(format!("mods/{}", &current_mod.version)) {
             Err(error) => {
                 match error.kind() {
                     ErrorKind::NotFound => {
                         println!("File not found... removing entry from lockfile.")
-                    },
+                    }
                     ErrorKind::PermissionDenied => {
                         println!("Couldn't delete file permission denied... exiting.");
                         exit(1);
-                    },
+                    }
                     _ => {}
                 }
-            },
+            }
             _ok => {}
         };
         println!("Updating lockfile...");
