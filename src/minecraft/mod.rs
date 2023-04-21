@@ -95,20 +95,18 @@ pub fn uninstall(mod_name: String) -> Result<(), McpmDataError> {
     if current_mod.is_some() {
         let current_mod = current_mod.unwrap();
         println!("Removing file...");
-        match fs::remove_file(format!("mods/{}", &current_mod.version)) {
-            Err(error) => {
-                match error.kind() {
-                    ErrorKind::NotFound => {
-                        println!("File not found... removing entry from lockfile.")
-                    }
-                    ErrorKind::PermissionDenied => {
-                        println!("Couldn't delete file permission denied... exiting.");
-                        exit(1);
-                    }
-                    _ => {}
+        if let Err(error) = fs::remove_file(format!("mods/{}", &current_mod.version)) {
+            match error.kind() {
+                ErrorKind::NotFound => {
+                    println!("File not found... removing entry from lockfile.")
+                }
+                ErrorKind::PermissionDenied => {
+                    panic!("Couldn't delete file permission denied... exiting.");
+                }
+                _ => {
+                    panic!("There was an unknown error removing the file");
                 }
             }
-            _ok => {}
         };
         println!("Updating lockfile...");
         current_instance.remove_mod(&current_mod);
